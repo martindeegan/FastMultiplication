@@ -16,6 +16,8 @@ public:
   const std::vector<unsigned long> &get_coeffs() const;
 
 private:
+  void set_zero();
+
   std::vector<unsigned long> coeffs;
 };
 

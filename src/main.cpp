@@ -1,4 +1,5 @@
 #include "BigInt.hpp"
+#include <iostream>
 #include <sstream>
 
 int main() {
@@ -6,4 +7,5 @@ int main() {
   BigInt i(int_string);
   std::stringstream ss;
   ss << i;
+  std::cout << ss.str() << std::endl;
 }
