@@ -57,3 +57,42 @@ BOOST_AUTO_TEST_CASE(ConstructorTestCase7) {
   ss << i;
   BOOST_CHECK_EQUAL(ss.str(), "1234567890");
 }
+
+BOOST_AUTO_TEST_CASE(ConstructorTestCase8) {
+  BigInt i("0");
+  std::stringstream ss;
+  ss << i;
+  BOOST_CHECK_EQUAL(ss.str(), "0");
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorTestCase9) {
+  std::string int_string = "0";
+  BigInt i(int_string);
+  std::stringstream ss;
+  ss << i;
+  BOOST_CHECK_EQUAL(ss.str(), "0");
+}
+
+BOOST_AUTO_TEST_CASE(OperatorEqualTest1) {
+  BigInt i("1234567890");
+  BigInt j("1234567890");
+  BOOST_CHECK_EQUAL(i, j);
+}
+
+BOOST_AUTO_TEST_CASE(OperatorEqualTest2) {
+  BigInt i("");
+  BigInt j("0");
+  BOOST_CHECK_EQUAL(i, j);
+}
+
+BOOST_AUTO_TEST_CASE(OperatorEqualTest3) {
+  BigInt i;
+  BigInt j("0");
+  BOOST_CHECK_EQUAL(i, j);
+}
+
+BOOST_AUTO_TEST_CASE(OperatorEqualTest4) {
+  BigInt i("1234567890");
+  BigInt j("1234657890");
+  BOOST_CHECK_NE(i, j);
+}

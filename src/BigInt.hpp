@@ -15,6 +15,8 @@ public:
 
   const std::vector<unsigned long> &get_coeffs() const;
 
+  bool operator==(const BigInt &other) const;
+
 private:
   void set_zero();
 
