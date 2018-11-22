@@ -65,6 +65,7 @@ private:
 
 std::ostream &operator<<(std::ostream &os, const BigInt &i);
 
-static BigInt::MultiplicationMethod DefaultMultMethod;
+static BigInt::MultiplicationMethod DefaultMultMethod =
+    BigInt::MultiplicationMethod::Naive;
 
 #endif
