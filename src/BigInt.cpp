@@ -88,7 +88,7 @@ BigInt BigInt::operator+(const BigInt &other) const {
 }
 
 BigInt &BigInt::operator+=(const BigInt &other) {
-  coeffs = other.coeffs;
+  *this = *this + other;
   return *this;
 }
 
