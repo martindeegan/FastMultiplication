@@ -1,8 +1,11 @@
-#include "BigInt.hpp"
 #include <iostream>
 #include <sstream>
 
+#include "BigInt.hpp"
+
 int main() {
+  DefaultMultMethod = BigInt::MultiplicationMethod::Naive;
+
   BigInt i("98");
   BigInt j("1");
   BigInt k = i + j;

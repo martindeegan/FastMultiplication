@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BIG_INT_HPP
+#define BIG_INT_HPP
 
 #include <ostream>
 #include <string>
@@ -6,7 +7,8 @@
 
 class BigInt {
 
-  constexpr static unsigned long noint = -1;
+public:
+  enum class MultiplicationMethod { Naive, Karatsuba, FFT };
 
 public:
   BigInt();
@@ -23,16 +25,46 @@ public:
 
   BigInt &operator+=(const BigInt &other);
 
+  BigInt operator*(const BigInt &other) const;
+
+  void set_mult_method(MultiplicationMethod mm);
+
+private:
+  class NaiveMultiplier {
+  public:
+    NaiveMultiplier() = default;
+
+    BigInt operator()(const BigInt &i, const BigInt &j);
+  };
+  friend NaiveMultiplier;
+
+  class KaratsubaMultiplier {
+  public:
+    KaratsubaMultiplier() = default;
+
+    BigInt operator()(const BigInt &i, const BigInt &j);
+  };
+  friend KaratsubaMultiplier;
+
+  class FFTMultiplier {
+  public:
+    FFTMultiplier() = default;
+
+    BigInt operator()(const BigInt &i, const BigInt &j);
+  };
+  friend FFTMultiplier;
+
 private:
   void set_zero();
 
+private:
   std::vector<unsigned long> coeffs;
+
+  MultiplicationMethod method;
 };
 
-std::ostream &operator<<(std::ostream &os, const BigInt &i) {
-  auto &coeffs = i.get_coeffs();
-  for (auto rit = coeffs.rbegin(); rit != coeffs.rend(); rit++) {
-    os << *rit;
-  }
-  return os;
-}
+std::ostream &operator<<(std::ostream &os, const BigInt &i);
+
+static BigInt::MultiplicationMethod DefaultMultMethod;
+
+#endif

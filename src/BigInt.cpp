@@ -2,9 +2,9 @@
 
 #include "BigInt.hpp"
 
-BigInt::BigInt() { set_zero(); }
+BigInt::BigInt() : method(DefaultMultMethod) { set_zero(); }
 
-BigInt::BigInt(const std::string &str) {
+BigInt::BigInt(const std::string &str) : method(DefaultMultMethod) {
   size_t first_digit_location = str.find_first_not_of('0', 0);
   if (first_digit_location == std::string::npos) {
     set_zero();
@@ -18,7 +18,7 @@ BigInt::BigInt(const std::string &str) {
   }
 }
 
-BigInt::BigInt(std::string &&str) {
+BigInt::BigInt(std::string &&str) : method(DefaultMultMethod) {
   size_t first_digit_location = str.find_first_not_of('0', 0);
   if (first_digit_location == std::string::npos) {
     set_zero();
@@ -33,10 +33,6 @@ BigInt::BigInt(std::string &&str) {
 }
 
 const std::vector<unsigned long> &BigInt::get_coeffs() const { return coeffs; }
-
-//==============================================================================
-//============================= Operator Overloads =============================
-//==============================================================================
 
 bool BigInt::operator==(const BigInt &other) const {
   if (other.coeffs.size() != coeffs.size()) {
@@ -92,7 +88,33 @@ BigInt &BigInt::operator+=(const BigInt &other) {
   return *this;
 }
 
+BigInt BigInt::operator*(const BigInt &other) const {
+  switch (method) {
+  case MultiplicationMethod::Naive:
+    NaiveMultiplier naive_mult;
+    return naive_mult(*this, other);
+  case MultiplicationMethod::Karatsuba:
+    KaratsubaMultiplier kara_mult;
+    return kara_mult(*this, other);
+  case MultiplicationMethod::FFT:
+    FFTMultiplier fft_mult;
+    return fft_mult(*this, other);
+  }
+
+  return BigInt();
+}
+
+void BigInt::set_mult_method(BigInt::MultiplicationMethod mm) { method = mm; }
+
 void BigInt::set_zero() {
   coeffs.resize(1);
   coeffs[0] = 0;
+}
+
+std::ostream &operator<<(std::ostream &os, const BigInt &i) {
+  auto &coeffs = i.get_coeffs();
+  for (auto rit = coeffs.rbegin(); rit != coeffs.rend(); rit++) {
+    os << *rit;
+  }
+  return os;
 }
