@@ -6,6 +6,8 @@
 
 class BigInt {
 
+  constexpr static unsigned long noint = -1;
+
 public:
   BigInt();
 
@@ -16,6 +18,10 @@ public:
   const std::vector<unsigned long> &get_coeffs() const;
 
   bool operator==(const BigInt &other) const;
+
+  BigInt operator+(const BigInt &other) const;
+
+  BigInt &operator+=(const BigInt &other);
 
 private:
   void set_zero();

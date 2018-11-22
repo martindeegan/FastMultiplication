@@ -3,9 +3,13 @@
 #include <sstream>
 
 int main() {
-  std::string int_string = "0";
-  BigInt i(int_string);
-  std::stringstream ss;
-  ss << i;
-  std::cout << ss.str() << std::endl;
+  BigInt i("98");
+  BigInt j("1");
+  BigInt k = i + j;
+  std::cout << k.get_coeffs().size() << std::endl;
+  std::cout << k.get_coeffs().capacity() << std::endl;
+
+  k = k + j;
+  std::cout << k.get_coeffs().size() << std::endl;
+  std::cout << k.get_coeffs().capacity() << std::endl;
 }
