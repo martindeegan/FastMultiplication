@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include <sstream>
 
 #include "BigInt.hpp"
