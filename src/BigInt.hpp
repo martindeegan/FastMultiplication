@@ -19,9 +19,6 @@ public:
 
   const std::vector<unsigned long> &get_coeffs() const;
 
-  BigInt &operator=(const std::string &str);
-  BigInt &operator=(std::string &&str);
-  // BigInt &operator=(const char *str);
   BigInt &operator=(long i);
   bool operator<(const BigInt &other) const;
   bool operator==(const BigInt &other) const;

@@ -38,16 +38,6 @@ BigInt::BigInt(long i) : method(DefaultMultMethod) {
 
 const std::vector<unsigned long> &BigInt::get_coeffs() const { return coeffs; }
 
-BigInt &BigInt::operator=(const std::string &str) {
-  *this = BigInt(str);
-  return *this;
-}
-
-BigInt &BigInt::operator=(std::string &&str) {
-  *this = BigInt(str);
-  return *this;
-}
-
 BigInt &BigInt::operator=(long i) {
   *this = BigInt(i);
   return *this;
