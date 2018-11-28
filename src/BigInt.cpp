@@ -32,7 +32,26 @@ BigInt::BigInt(std::string &&str) : method(DefaultMultMethod) {
   }
 }
 
+BigInt::BigInt(long i) : method(DefaultMultMethod) {
+  *this = BigInt(std::to_string(i));
+}
+
 const std::vector<unsigned long> &BigInt::get_coeffs() const { return coeffs; }
+
+BigInt &BigInt::operator=(const std::string &str) {
+  *this = BigInt(str);
+  return *this;
+}
+
+BigInt &BigInt::operator=(std::string &&str) {
+  *this = BigInt(str);
+  return *this;
+}
+
+BigInt &BigInt::operator=(long i) {
+  *this = BigInt(i);
+  return *this;
+}
 
 bool BigInt::operator==(const BigInt &other) const {
   if (other.coeffs.size() != coeffs.size()) {
@@ -45,6 +64,29 @@ bool BigInt::operator==(const BigInt &other) const {
   }
 
   return true;
+}
+
+bool BigInt::operator==(long i) const { return *this == BigInt(i); }
+
+bool BigInt::operator==(std::string &&str) const {
+  return *this == BigInt(str);
+}
+
+bool BigInt::operator<(const BigInt &other) const {
+  if (other.coeffs.size() > coeffs.size()) {
+    return false;
+  } else if (other.coeffs.size() < coeffs.size()) {
+    return true;
+  } else {
+    for (size_t i = coeffs.size() - 1; i >= 0; i--) {
+      if (other.coeffs[i] > coeffs[i]) {
+        return true;
+      } else if (other.coeffs[i] < coeffs[i]) {
+        return false;
+      }
+    }
+  }
+  return false;
 }
 
 BigInt BigInt::operator+(const BigInt &other) const {
@@ -89,6 +131,9 @@ BigInt &BigInt::operator+=(const BigInt &other) {
 }
 
 BigInt BigInt::operator*(const BigInt &other) const {
+  if (other == 0 || *this == 0) {
+    return 0;
+  }
   switch (method) {
   case MultiplicationMethod::Naive:
     NaiveMultiplier naive_mult;
@@ -102,6 +147,11 @@ BigInt BigInt::operator*(const BigInt &other) const {
   }
 
   return BigInt();
+}
+
+BigInt &BigInt::operator*=(const BigInt &other) {
+  *this = *this * other;
+  return *this;
 }
 
 void BigInt::set_mult_method(BigInt::MultiplicationMethod mm) { method = mm; }

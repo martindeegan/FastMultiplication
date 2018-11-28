@@ -6,14 +6,12 @@
 
 int main() {
   DefaultMultMethod = BigInt::MultiplicationMethod::Naive;
+  std::string istr;
+  std::string jstr;
+  std::getline(std::cin, istr);
+  std::getline(std::cin, jstr);
+  BigInt i(istr);
+  BigInt j(jstr);
 
-  BigInt i("98");
-  BigInt j("1");
-  BigInt k = i + j;
-  std::cout << k.get_coeffs().size() << std::endl;
-  std::cout << k.get_coeffs().capacity() << std::endl;
-
-  k = k + j;
-  std::cout << k.get_coeffs().size() << std::endl;
-  std::cout << k.get_coeffs().capacity() << std::endl;
+  std::cout << i * j << std::endl;
 }

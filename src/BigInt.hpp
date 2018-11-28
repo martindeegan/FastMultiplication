@@ -12,20 +12,25 @@ public:
 
 public:
   BigInt();
-
   BigInt(const std::string &str);
-
   BigInt(std::string &&str);
+  // BigInt(const char *str);
+  BigInt(long i);
 
   const std::vector<unsigned long> &get_coeffs() const;
 
+  BigInt &operator=(const std::string &str);
+  BigInt &operator=(std::string &&str);
+  // BigInt &operator=(const char *str);
+  BigInt &operator=(long i);
+  bool operator<(const BigInt &other) const;
   bool operator==(const BigInt &other) const;
-
+  bool operator==(long i) const;
+  bool operator==(std::string &&str) const;
   BigInt operator+(const BigInt &other) const;
-
   BigInt &operator+=(const BigInt &other);
-
   BigInt operator*(const BigInt &other) const;
+  BigInt &operator*=(const BigInt &other);
 
   void set_mult_method(MultiplicationMethod mm);
 
@@ -58,8 +63,8 @@ private:
   void set_zero();
 
 private:
+  // bool negative;
   std::vector<unsigned long> coeffs;
-
   MultiplicationMethod method;
 };
 
