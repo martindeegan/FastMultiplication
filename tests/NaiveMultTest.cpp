@@ -6,7 +6,10 @@
 
 #include "BigInt.hpp"
 
-void set_default() { DefaultMultMethod = BigInt::MultiplicationMethod::Naive; }
+void set_default() {
+
+  BigInt::set_mult_method(BigInt::MultiplicationMethod::Naive);
+}
 
 BOOST_AUTO_TEST_CASE(MultTest1) {
   set_default();

@@ -2,9 +2,13 @@
 
 #include "BigInt.hpp"
 
-BigInt::BigInt() : method(DefaultMultMethod) { set_zero(); }
+// Need to initialize the state variable
+BigInt::MultiplicationMethod BigInt::method =
+    BigInt::MultiplicationMethod::Naive;
 
-BigInt::BigInt(const std::string &str) : method(DefaultMultMethod) {
+BigInt::BigInt() { set_zero(); }
+
+BigInt::BigInt(const std::string &str) {
   size_t first_digit_location = str.find_first_not_of('0', 0);
   if (first_digit_location == std::string::npos) {
     set_zero();
@@ -18,7 +22,7 @@ BigInt::BigInt(const std::string &str) : method(DefaultMultMethod) {
   }
 }
 
-BigInt::BigInt(std::string &&str) : method(DefaultMultMethod) {
+BigInt::BigInt(std::string &&str) {
   size_t first_digit_location = str.find_first_not_of('0', 0);
   if (first_digit_location == std::string::npos) {
     set_zero();
@@ -32,9 +36,7 @@ BigInt::BigInt(std::string &&str) : method(DefaultMultMethod) {
   }
 }
 
-BigInt::BigInt(long i) : method(DefaultMultMethod) {
-  *this = BigInt(std::to_string(i));
-}
+BigInt::BigInt(long i) { *this = BigInt(std::to_string(i)); }
 
 const std::vector<unsigned long> &BigInt::get_coeffs() const { return coeffs; }
 
@@ -96,14 +98,14 @@ BigInt BigInt::operator+(const BigInt &other) const {
 
   for (; i < other.coeffs.size(); i++) {
     unsigned long digit = coeffs[i] + other.coeffs[i] + remainder;
-    sum.coeffs.push_back(digit % 10);
-    remainder = digit / 10;
+    sum.coeffs.push_back(digit % Base);
+    remainder = digit / Base;
   }
 
   for (; i < coeffs.size(); i++) {
     unsigned long digit = coeffs[i] + remainder;
-    sum.coeffs.push_back(digit % 10);
-    remainder = digit / 10;
+    sum.coeffs.push_back(digit % Base);
+    remainder = digit / Base;
   }
 
   if (remainder == 0) {
@@ -113,6 +115,12 @@ BigInt BigInt::operator+(const BigInt &other) const {
   }
 
   return sum;
+}
+
+BigInt BigInt::operator-(const BigInt &other) const {
+  BigInt difference;
+
+  return difference;
 }
 
 BigInt &BigInt::operator+=(const BigInt &other) {
@@ -143,8 +151,6 @@ BigInt &BigInt::operator*=(const BigInt &other) {
   *this = *this * other;
   return *this;
 }
-
-void BigInt::set_mult_method(BigInt::MultiplicationMethod mm) { method = mm; }
 
 void BigInt::set_zero() {
   coeffs.resize(1);

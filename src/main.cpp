@@ -5,7 +5,7 @@
 #include "BigInt.hpp"
 
 int main() {
-  DefaultMultMethod = BigInt::MultiplicationMethod::Naive;
+  BigInt::set_mult_method(BigInt::MultiplicationMethod::Naive);
   std::string istr;
   std::string jstr;
   std::getline(std::cin, istr);

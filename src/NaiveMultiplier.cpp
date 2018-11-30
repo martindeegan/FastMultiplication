@@ -1,7 +1,7 @@
 #include "BigInt.hpp"
 #include <iostream>
 
-BigInt BigInt::NaiveMultiplier::operator()(const BigInt &i, const BigInt &j) {
+BigInt NaiveMultiplier::operator()(const BigInt &i, const BigInt &j) {
   BigInt product;
   product.coeffs.reserve(i.coeffs.size() + j.coeffs.size() + 1);
   BigInt zeros;
@@ -14,8 +14,8 @@ BigInt BigInt::NaiveMultiplier::operator()(const BigInt &i, const BigInt &j) {
     else {
       for (size_t l = 0; l < j.coeffs.size(); l++) {
         unsigned long digit = i.coeffs[k] * j.coeffs[l] + remainder;
-        sub_product.coeffs.push_back(digit % 10);
-        remainder = digit / 10;
+        sub_product.coeffs.push_back(digit % BigInt::Base);
+        remainder = digit / BigInt::Base;
       }
       if (remainder != 0) {
         sub_product.coeffs.push_back(remainder);
