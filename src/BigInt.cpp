@@ -118,9 +118,15 @@ BigInt BigInt::operator+(const BigInt &other) const {
 }
 
 BigInt BigInt::operator-(const BigInt &other) const {
+  // TODO: Implement
   BigInt difference;
-
   return difference;
+}
+
+BigInt BigInt::operator-() const {
+  // TODO: Implement
+  BigInt negation;
+  return negation;
 }
 
 BigInt &BigInt::operator+=(const BigInt &other) {

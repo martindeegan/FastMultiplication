@@ -32,6 +32,7 @@ public:
   bool operator==(std::string &&str) const;
   BigInt operator+(const BigInt &other) const;
   BigInt operator-(const BigInt &other) const;
+  BigInt operator-() const;
   BigInt &operator+=(const BigInt &other);
   BigInt operator*(const BigInt &other) const;
   BigInt &operator*=(const BigInt &other);
