@@ -43,7 +43,7 @@ void BigInt::initialize_string(std::string trimmed) {
   coeffs.reserve(trimmed.size() - first_nonzero);
   for (auto rit = trimmed.rbegin(); rit != trimmed.rend() - first_nonzero;
        rit++) {
-    unsigned long digit = (*rit) - '0';
+    Scalar digit = (*rit) - '0';
     coeffs.push_back(digit);
   }
 }
@@ -64,7 +64,7 @@ BigInt::BigInt(long i) { *this = BigInt(std::to_string(i)); }
 // Getters
 // =============================================================================
 
-const std::vector<unsigned long> &BigInt::get_coeffs() const { return coeffs; }
+const std::vector<Scalar> &BigInt::get_coeffs() const { return coeffs; }
 
 bool BigInt::negative() const { return parity == Parity::Negative; }
 bool BigInt::positive() const { return parity == Parity::Positive; }
@@ -207,52 +207,90 @@ bool BigInt::operator>=(std::string &&str) const {
 // Aritmetic
 // =============================================================================
 
+void BigInt::trim_coeff() {
+  auto it = std::find_if(coeffs.rbegin(), coeffs.rend(),
+                         [](Scalar i) { return i != 0; });
+
+  if (it == coeffs.rend()) {
+    set_zero();
+    return;
+  }
+
+  size_t diff = coeffs.rend() - it;
+  coeffs.resize(diff);
+}
+
 BigInt BigInt::operator+(const BigInt &other) const {
+  // If either are zero return the other
   if (zero())
     return other;
   if (other.zero())
     return *this;
 
-  // This should always be the largest int
-  if (coeffs.size() < other.coeffs.size()) {
-    return other + *this;
+  // this needs to have the most number of digits
+  if (positive()) {
+    if (other.positive()) {
+      if (other > *this) {
+        return other + *this;
+      }
+    } else if (other.negative()) {
+      if (-other > *this) {
+        return -((-other) + (-*this));
+      }
+    }
+  } else if (negative()) {
+    if (other.positive()) {
+      if (other > -*this) {
+        return -((-other) + (-*this));
+      }
+    } else if (other.negative()) {
+      if (other < *this) {
+        return other + *this;
+      }
+    }
   }
 
+  Scalar pm = (parity == other.parity) ? 1 : -1;
+
   BigInt sum;
+  sum.parity = this->parity;
   sum.coeffs.clear();
 
   size_t size = coeffs.size() + 1;
   sum.coeffs.reserve(size);
 
   size_t i = 0;
-  unsigned long remainder = 0;
+  Scalar carry = 0;
 
   for (; i < other.coeffs.size(); i++) {
-    unsigned long digit = coeffs[i] + other.coeffs[i] + remainder;
-    sum.coeffs.push_back(digit % Base);
-    remainder = digit / Base;
+    Scalar digit = carry + coeffs[i] + (other.coeffs[i] * pm);
+    Scalar remainder = digit % Base;
+    carry = digit / Base;
+    if (remainder < 0) {
+      remainder += Base;
+      carry--;
+    }
+    sum.coeffs.push_back(remainder);
   }
 
   for (; i < coeffs.size(); i++) {
-    unsigned long digit = coeffs[i] + remainder;
+    Scalar digit = coeffs[i] + carry;
     sum.coeffs.push_back(digit % Base);
-    remainder = digit / Base;
+    carry = digit / Base;
   }
 
-  if (remainder == 0) {
+  if (carry == 0) {
     sum.coeffs.resize(coeffs.size());
   } else {
-    sum.coeffs.push_back(remainder);
+    sum.coeffs.push_back(carry);
   }
+
+  sum.trim_coeff();
 
   return sum;
 }
 
-BigInt BigInt::operator-(const BigInt &other) const {
-  // TODO: Implement
-  BigInt difference;
-  return difference;
-}
+BigInt BigInt::operator-(const BigInt &other) const { return *this + (-other); }
 
 BigInt BigInt::operator-() const {
   // TODO: Implement
@@ -277,22 +315,29 @@ BigInt &BigInt::operator+=(const BigInt &other) {
 }
 
 BigInt BigInt::operator*(const BigInt &other) const {
-  if (other == 0 || *this == 0) {
-    return 0;
+  if (zero() || other.zero()) {
+    BigInt zero_int;
+    return zero_int;
   }
+
+  BigInt product;
   switch (method) {
   case MultiplicationMethod::Naive:
     NaiveMultiplier naive_mult;
-    return naive_mult(*this, other);
+    product = naive_mult(*this, other);
   case MultiplicationMethod::Karatsuba:
     KaratsubaMultiplier kara_mult;
-    return kara_mult(*this, other);
+    product = kara_mult(*this, other);
   case MultiplicationMethod::FFT:
     FFTMultiplier fft_mult;
-    return fft_mult(*this, other);
+    product = fft_mult(*this, other);
   }
 
-  return BigInt();
+  if (parity != other.parity) {
+    product = -product;
+  }
+
+  return product;
 }
 
 BigInt &BigInt::operator*=(const BigInt &other) {

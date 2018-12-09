@@ -9,13 +9,15 @@ class NaiveMultiplier;
 class KaratsubaMultiplier;
 class FFTMultiplier;
 
+using Scalar = long;
+
 class BigInt {
 
 public:
   enum class MultiplicationMethod { Naive, Karatsuba, FFT };
   enum class Parity { Positive, Negative, Zero };
 
-  static constexpr unsigned long Base = 10;
+  static constexpr Scalar Base = 10;
 
 public:
   BigInt();
@@ -26,7 +28,7 @@ public:
 
   void initialize_string(std::string trimmed);
 
-  const std::vector<unsigned long> &get_coeffs() const;
+  const std::vector<Scalar> &get_coeffs() const;
   bool negative() const;
   bool positive() const;
   bool zero() const;
@@ -35,21 +37,27 @@ public:
   bool operator<(const BigInt &other) const;
   bool operator<(long i) const;
   bool operator<(std::string &&str) const;
+
   bool operator<=(const BigInt &other) const;
   bool operator<=(long i) const;
   bool operator<=(std::string &&str) const;
+
   bool operator>(const BigInt &other) const;
   bool operator>(long i) const;
   bool operator>(std::string &&str) const;
+
   bool operator>=(const BigInt &other) const;
   bool operator>=(long i) const;
   bool operator>=(std::string &&str) const;
+
   bool operator==(const BigInt &other) const;
   bool operator==(long i) const;
   bool operator==(std::string &&str) const;
+
   bool operator!=(const BigInt &other) const;
   bool operator!=(long i) const;
   bool operator!=(std::string &&str) const;
+
   BigInt operator+(const BigInt &other) const;
   BigInt operator-(const BigInt &other) const;
   BigInt operator-() const;
@@ -69,12 +77,14 @@ private:
   friend FFTMultiplier;
 
 private:
+  void trim_coeff();
+
   void set_zero();
 
 private:
   Parity parity;
 
-  std::vector<unsigned long> coeffs;
+  std::vector<Scalar> coeffs;
 };
 
 class NaiveMultiplier {
@@ -108,12 +118,11 @@ public:
 
   size_t get_pow_two(const BigInt &i, const BigInt &j);
 
-  std::vector<unsigned long> FFT(const BigInt &i, size_t n);
+  std::vector<Scalar> FFT(const BigInt &i, size_t n);
 
-  BigInt invFFT(std::vector<unsigned long> &y);
+  BigInt invFFT(std::vector<Scalar> &y);
 
-  void FFTUtil(std::vector<unsigned long> &v, std::vector<unsigned long> &y,
-               unsigned long w);
+  void FFTUtil(std::vector<Scalar> &v, std::vector<Scalar> &y, Scalar w);
 
   BigInt operator()(const BigInt &i, const BigInt &j);
 };

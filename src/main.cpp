@@ -5,11 +5,8 @@
 #include "BigInt.hpp"
 
 int main() {
-  BigInt i("1");
-  BigInt j("1");
-  BigInt k("2");
+  BigInt i = 123123;
+  BigInt j = 123123;
 
-  auto l = i + j;
-  bool b = k == l;
-  std::cout << i << std::endl;
+  j - i;
 }

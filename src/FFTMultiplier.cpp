@@ -21,15 +21,15 @@ size_t FFTMultiplier::get_pow_two(const BigInt &i, const BigInt &j) {
   return static_cast<size_t>(std::ceil(max_log));
 }
 
-std::vector<unsigned long> FFTMultiplier::FFT(const BigInt &i, size_t n) {
-  std::vector<unsigned long> y(n);
-  std::vector<unsigned long> v(n, 0);
+std::vector<Scalar> FFTMultiplier::FFT(const BigInt &i, size_t n) {
+  std::vector<Scalar> y(n);
+  std::vector<Scalar> v(n, 0);
   std::copy(i.coeffs.begin(), i.coeffs.end(), v.begin());
   FFTUtil(v, y, 1);
   return y;
 }
 
-BigInt FFTMultiplier::invFFT(std::vector<unsigned long> &y) {
+BigInt FFTMultiplier::invFFT(std::vector<Scalar> &y) {
   BigInt result;
   result.coeffs.resize(y.size());
   FFTUtil(y, result.coeffs, -1);
@@ -37,8 +37,8 @@ BigInt FFTMultiplier::invFFT(std::vector<unsigned long> &y) {
   return result;
 }
 
-void FFTMultiplier::FFTUtil(std::vector<unsigned long> &v,
-                            std::vector<unsigned long> &y, unsigned long w) {}
+void FFTMultiplier::FFTUtil(std::vector<Scalar> &v, std::vector<Scalar> &y,
+                            Scalar w) {}
 
 BigInt FFTMultiplier::operator()(const BigInt &i, const BigInt &j) {
   size_t n = get_pow_two(i, j);
