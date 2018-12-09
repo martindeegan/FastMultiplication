@@ -5,13 +5,11 @@
 #include "BigInt.hpp"
 
 int main() {
-  BigInt::set_mult_method(BigInt::MultiplicationMethod::Naive);
-  std::string istr;
-  std::string jstr;
-  std::getline(std::cin, istr);
-  std::getline(std::cin, jstr);
-  BigInt i(istr);
-  BigInt j(jstr);
+  BigInt i("1");
+  BigInt j("1");
+  BigInt k("2");
 
-  std::cout << i * j << std::endl;
+  auto l = i + j;
+  bool b = k == l;
+  std::cout << i << std::endl;
 }

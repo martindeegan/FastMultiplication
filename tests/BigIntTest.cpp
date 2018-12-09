@@ -73,6 +73,43 @@ BOOST_AUTO_TEST_CASE(ConstructorTestCase9) {
   BOOST_CHECK_EQUAL(ss.str(), "0");
 }
 
+BOOST_AUTO_TEST_CASE(ConstructorTestCase10) {
+  std::string int_string = "-00000000000000000000001231231";
+  BigInt i(int_string);
+  std::stringstream ss;
+  ss << i;
+  BOOST_CHECK_EQUAL(ss.str(), "-1231231");
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorTestCase11) {
+  std::string int_string = "-0000000000000000000000";
+  BigInt i(int_string);
+  std::stringstream ss;
+  ss << i;
+  BOOST_CHECK_EQUAL(ss.str(), "0");
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorTestCase12) {
+  BigInt i("-00000000000000000000001231231");
+  std::stringstream ss;
+  ss << i;
+  BOOST_CHECK_EQUAL(ss.str(), "-1231231");
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorTestCase13) {
+  BigInt i("-0000000000000000000000");
+  std::stringstream ss;
+  ss << i;
+  BOOST_CHECK_EQUAL(ss.str(), "0");
+}
+
+BOOST_AUTO_TEST_CASE(ConstructorTestCase14) {
+  BigInt i(" da  -    0000000000000000000000232");
+  std::stringstream ss;
+  ss << i;
+  BOOST_CHECK_EQUAL(ss.str(), "-232");
+}
+
 BOOST_AUTO_TEST_CASE(OperatorEqualTest1) {
   BigInt i("1234567890");
   BigInt j("1234567890");
@@ -95,6 +132,59 @@ BOOST_AUTO_TEST_CASE(OperatorEqualTest4) {
   BigInt i("1234567890");
   BigInt j("1234657890");
   BOOST_CHECK_NE(i, j);
+}
+
+BOOST_AUTO_TEST_CASE(ComparisonOperatorTest1) {
+  BigInt i("1234567890");
+  BigInt j("1234567891");
+  BOOST_CHECK_LT(i, j);
+  BOOST_CHECK_GT(j, i);
+  BOOST_CHECK_LE(i, j);
+  BOOST_CHECK_GE(j, i);
+}
+
+BOOST_AUTO_TEST_CASE(ComparisonOperatorTest2) {
+  BigInt i("1234567890");
+  BigInt j("-1234567891");
+  BOOST_CHECK_LT(j, i);
+  BOOST_CHECK_GT(i, j);
+  BOOST_CHECK_LE(j, i);
+  BOOST_CHECK_GE(i, j);
+}
+
+BOOST_AUTO_TEST_CASE(ComparisonOperatorTest3) {
+  BigInt i("-0");
+  BigInt j;
+  BOOST_CHECK_LE(i, j);
+  BOOST_CHECK_GE(i, j);
+  BOOST_CHECK_LE(j, i);
+  BOOST_CHECK_GE(i, i);
+}
+
+BOOST_AUTO_TEST_CASE(ComparisonOperatorTest4) {
+  BigInt i("123");
+  BigInt j("1231234");
+  BOOST_CHECK_LE(i, j);
+  BOOST_CHECK_GE(j, i);
+  BOOST_CHECK_GE(i, i);
+}
+
+BOOST_AUTO_TEST_CASE(ComparisonOperatorTest5) {
+  BigInt i("-1234123");
+  BigInt j("-123");
+  BOOST_CHECK_LT(i, j);
+  BOOST_CHECK_GT(j, i);
+  BOOST_CHECK_LE(i, j);
+  BOOST_CHECK_GE(j, i);
+}
+
+BOOST_AUTO_TEST_CASE(ComparisonOperatorTest6) {
+  BigInt i("-983212");
+  BigInt j("-123123");
+  BOOST_CHECK_LT(i, j);
+  BOOST_CHECK_GT(j, i);
+  BOOST_CHECK_LE(i, j);
+  BOOST_CHECK_GE(j, i);
 }
 
 BOOST_AUTO_TEST_CASE(AdditionTest1) {
@@ -195,35 +285,60 @@ BOOST_AUTO_TEST_CASE(InPlaceAdditionTest2) {
   BOOST_CHECK_EQUAL(j, k);
 }
 
-BOOST_AUTO_TEST_CASE(SubtractionTest1) {
-  BigInt i("1");
-  BigInt j("1");
-  BOOST_CHECK_EQUAL(i - j, 0);
-  BOOST_CHECK_EQUAL(j - i, 0);
+BOOST_AUTO_TEST_CASE(NegationTest1) {
+  BigInt j("3213876088517980551083924184682325205044405987565585670602751");
+  BigInt k("-3213876088517980551083924184682325205044405987565585670602751");
+  BOOST_CHECK_EQUAL(-j, k);
+  BOOST_CHECK_EQUAL(j, -k);
 }
 
-BOOST_AUTO_TEST_CASE(SubtractionTest2) {
-  BigInt i("0");
-  BigInt j("20");
-  BOOST_CHECK_EQUAL(i - j, -20);
-  BOOST_CHECK_EQUAL(j - i, 20);
+// BOOST_AUTO_TEST_CASE(NegationTest2) {
+//   BigInt j("0");
+//   BigInt k("-0");
+//   BOOST_CHECK_EQUAL(-j, k);
+//   BOOST_CHECK_EQUAL(j, -k);
+//   BOOST_CHECK_EQUAL(j, k);
+// }
+
+BOOST_AUTO_TEST_CASE(NegationTest3) {
+  BigInt j("3213876088517980551083924184682325205044405987565585670602751");
+  BigInt k("-3213876088517980551083924184682325205044405987565585670602751");
+  BOOST_CHECK_EQUAL(-j, k);
+  BOOST_CHECK_EQUAL(j, -k);
 }
 
-BOOST_AUTO_TEST_CASE(SubtractionTest3) {
-  BigInt i("763287462834");
-  BigInt j("12938472813479");
-  BigInt k("-12175185350645");
-  BOOST_CHECK_EQUAL(i - j, k);
-  BOOST_CHECK_EQUAL(j - i, -k);
-}
+// BOOST_AUTO_TEST_CASE(SubtractionTest1) {
+//   BigInt i("1");
+//   BigInt j("1");
+//   BOOST_CHECK_EQUAL(i - j, 0);
+//   BOOST_CHECK_EQUAL(j - i, 0);
+// }
 
-BOOST_AUTO_TEST_CASE(SubtractionTest4) {
-  BigInt i("3841907248097123894709817630481029386518239472034012938568349872893"
-           "741298346138467129837401293874091823749081723094781");
-  BigInt j("0918237490812739048712093847091827309487102983740987123094790283749"
-           "18031328427394");
-  BigInt k("3841907248097123894709817630481029386426415722952739033697140488184"
-           "558567397428168755738688984395063448831050394667387");
-  BOOST_CHECK_EQUAL(i - j, k);
-  BOOST_CHECK_EQUAL(j - i, -k);
-}
+// BOOST_AUTO_TEST_CASE(SubtractionTest2) {
+//   BigInt i("0");
+//   BigInt j("20");
+//   BOOST_CHECK_EQUAL(i - j, -20);
+//   BOOST_CHECK_EQUAL(j - i, 20);
+// }
+
+// BOOST_AUTO_TEST_CASE(SubtractionTest3) {
+//   BigInt i("763287462834");
+//   BigInt j("12938472813479");
+//   BigInt k("-12175185350645");
+//   BOOST_CHECK_EQUAL(i - j, k);
+//   BOOST_CHECK_EQUAL(j - i, -k);
+// }
+
+// BOOST_AUTO_TEST_CASE(SubtractionTest4) {
+//   BigInt
+//   i("3841907248097123894709817630481029386518239472034012938568349872893"
+//            "741298346138467129837401293874091823749081723094781");
+//   BigInt
+//   j("0918237490812739048712093847091827309487102983740987123094790283749"
+//            "18031328427394");
+//   BigInt
+//   k("3841907248097123894709817630481029386426415722952739033697140488184"
+//            "558567397428168755738688984395063448831050394667387");
+//   BOOST_CHECK_EQUAL(i - j, k);
+//   BOOST_CHECK_EQUAL(j - i, -k);
+// }

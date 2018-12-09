@@ -13,6 +13,7 @@ class BigInt {
 
 public:
   enum class MultiplicationMethod { Naive, Karatsuba, FFT };
+  enum class Parity { Positive, Negative, Zero };
 
   static constexpr unsigned long Base = 10;
 
@@ -23,13 +24,32 @@ public:
   // BigInt(const char *str);
   BigInt(long i);
 
+  void initialize_string(std::string trimmed);
+
   const std::vector<unsigned long> &get_coeffs() const;
+  bool negative() const;
+  bool positive() const;
+  bool zero() const;
 
   BigInt &operator=(long i);
   bool operator<(const BigInt &other) const;
+  bool operator<(long i) const;
+  bool operator<(std::string &&str) const;
+  bool operator<=(const BigInt &other) const;
+  bool operator<=(long i) const;
+  bool operator<=(std::string &&str) const;
+  bool operator>(const BigInt &other) const;
+  bool operator>(long i) const;
+  bool operator>(std::string &&str) const;
+  bool operator>=(const BigInt &other) const;
+  bool operator>=(long i) const;
+  bool operator>=(std::string &&str) const;
   bool operator==(const BigInt &other) const;
   bool operator==(long i) const;
   bool operator==(std::string &&str) const;
+  bool operator!=(const BigInt &other) const;
+  bool operator!=(long i) const;
+  bool operator!=(std::string &&str) const;
   BigInt operator+(const BigInt &other) const;
   BigInt operator-(const BigInt &other) const;
   BigInt operator-() const;
@@ -52,7 +72,8 @@ private:
   void set_zero();
 
 private:
-  // bool negative;
+  Parity parity;
+
   std::vector<unsigned long> coeffs;
 };
 
@@ -96,6 +117,9 @@ public:
 
   BigInt operator()(const BigInt &i, const BigInt &j);
 };
+
+std::string trim(const std::string &str);
+bool my_isdigit(char c);
 
 std::ostream &operator<<(std::ostream &os, const BigInt &i);
 
