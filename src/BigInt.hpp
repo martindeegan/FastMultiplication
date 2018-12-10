@@ -1,6 +1,7 @@
 #ifndef BIG_INT_HPP
 #define BIG_INT_HPP
 
+#include <cstdint>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -9,7 +10,7 @@ class NaiveMultiplier;
 class KaratsubaMultiplier;
 class FFTMultiplier;
 
-using Scalar = long;
+using Scalar = int16_t;
 
 class BigInt {
 

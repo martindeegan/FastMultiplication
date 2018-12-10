@@ -33,18 +33,12 @@ KaratsubaMultiplier::SplitInt KaratsubaMultiplier::split(const BigInt &i) {
 }
 
 BigInt KaratsubaMultiplier::multiply(const BigInt &i, const BigInt &j) {
-  static size_t smallest_n = 0;
-  static size_t largest_n = std::pow(2, 63);
   if (i.zero() || j.zero()) {
     BigInt zero_int;
     return zero_int;
   }
 
   size_t n = std::max(i.coeffs.size(), j.coeffs.size());
-  if (n < largest_n) {
-    largest_n = n;
-    std::cout << n << std::endl;
-  }
 
   // If not a power of 2
   if (n & (n - 1) != 0 || i.coeffs.size() != j.coeffs.size()) {
@@ -86,10 +80,6 @@ BigInt KaratsubaMultiplier::multiply(const BigInt &i, const BigInt &j) {
   z_2.coeffs.insert(z_2.coeffs.begin(), n, 0);
 
   product = z_0 + z_1 + z_2;
-  if (n > smallest_n) {
-    std::cout << n << std::endl;
-    smallest_n = n;
-  }
 
   return product;
 }
