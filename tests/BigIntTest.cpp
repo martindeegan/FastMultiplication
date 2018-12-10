@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE BigIntTest
 
+#include <cmath>
 #include <sstream>
 
 #include <boost/test/unit_test.hpp>
@@ -379,4 +380,13 @@ BOOST_AUTO_TEST_CASE(SubtractionTest5) {
   BOOST_CHECK_EQUAL(i - j, k);
   BOOST_CHECK_EQUAL(j - i, -k);
   BOOST_CHECK_EQUAL(-i + -j, l);
+}
+
+BOOST_AUTO_TEST_CASE(Pow2Test1) {
+  size_t x1 = 1073741824;
+  size_t x2 = 1073741822;
+  size_t x3 = 1073741825;
+  BOOST_CHECK_EQUAL(upper_power_of_two(x1), std::pow<size_t>(2, 30));
+  BOOST_CHECK_EQUAL(upper_power_of_two(x2), std::pow<size_t>(2, 30));
+  BOOST_CHECK_EQUAL(upper_power_of_two(x3), std::pow<size_t>(2, 31));
 }

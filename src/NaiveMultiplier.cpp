@@ -8,6 +8,7 @@ BigInt NaiveMultiplier::operator()(const BigInt &i, const BigInt &j) {
   zeros.coeffs.clear();
   for (size_t k = 0; k < i.coeffs.size(); k++) {
     BigInt sub_product = zeros;
+    sub_product.parity = BigInt::Parity::Positive;
     Scalar remainder = 0;
     if (i.coeffs[k] == 0)
       sub_product = 0;

@@ -21,6 +21,18 @@ std::string trim(const std::string &str) {
 
 bool my_isdigit(char c) { return !(std::isdigit(c) || c == '-'); }
 
+size_t upper_power_of_two(size_t v) {
+  v--;
+  v |= v >> 1;
+  v |= v >> 2;
+  v |= v >> 4;
+  v |= v >> 8;
+  v |= v >> 16;
+  v |= v >> 32;
+  v++;
+  return v;
+}
+
 // =============================================================================
 // Constructors
 // =============================================================================
@@ -321,22 +333,28 @@ BigInt BigInt::operator*(const BigInt &other) const {
   }
 
   BigInt product;
+  product.parity = Parity::Positive;
+
   switch (method) {
   case MultiplicationMethod::Naive:
     NaiveMultiplier naive_mult;
     product = naive_mult(*this, other);
+    break;
   case MultiplicationMethod::Karatsuba:
     KaratsubaMultiplier kara_mult;
-    product = kara_mult(*this, other);
+    product = kara_mult.multiply(*this, other);
+    break;
   case MultiplicationMethod::FFT:
     FFTMultiplier fft_mult;
     product = fft_mult(*this, other);
+    break;
   }
 
   if (parity != other.parity) {
     product = -product;
   }
 
+  product.trim_coeff();
   return product;
 }
 

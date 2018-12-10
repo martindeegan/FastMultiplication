@@ -5,8 +5,13 @@
 #include "BigInt.hpp"
 
 int main() {
-  BigInt i = 123123;
-  BigInt j = 123123;
+  BigInt::set_mult_method(BigInt::MultiplicationMethod::Karatsuba);
+  std::string istr;
+  std::string jstr;
+  std::getline(std::cin, istr);
+  std::getline(std::cin, jstr);
+  BigInt i(istr);
+  BigInt j(jstr);
 
-  j - i;
+  std::cout << i * j << std::endl;
 }

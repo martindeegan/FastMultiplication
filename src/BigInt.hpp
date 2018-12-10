@@ -94,16 +94,18 @@ public:
   BigInt operator()(const BigInt &i, const BigInt &j);
 };
 
+size_t upper_power_of_two(size_t v);
+
 class KaratsubaMultiplier {
 public:
   KaratsubaMultiplier() = default;
 
   struct SplitInt {
-    BigInt top;
-    BigInt bottom;
+    BigInt hi;
+    BigInt lo;
   };
   SplitInt split(const BigInt &i);
-  BigInt operator()(const BigInt &i, const BigInt &j);
+  BigInt multiply(const BigInt &i, const BigInt &j);
 };
 
 class FFTMultiplier {
