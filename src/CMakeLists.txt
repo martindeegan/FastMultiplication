@@ -11,3 +11,6 @@ target_link_libraries(main integer)
 
 add_executable(fft fft.cpp)
 target_link_libraries(fft integer)
+
+add_executable(imageconv ImageConvs.cpp)
+target_link_libraries(imageconv ${OpenCV_LIBS})

@@ -17,15 +17,12 @@ void FFT(std::valarray<Scalar> &x) {
   if (N <= 1)
     return;
 
-  // divide
   std::valarray<Scalar> even = x[std::slice(0, N / 2, 2)];
   std::valarray<Scalar> odd = x[std::slice(1, N / 2, 2)];
 
-  // conquer
   FFT(even);
   FFT(odd);
 
-  // combine
   for (size_t k = 0; k < N / 2; ++k) {
     Scalar t = std::polar(1.0, -2 * M_PI * k / N) * odd[k];
     x[k] = even[k] + t;
@@ -34,16 +31,9 @@ void FFT(std::valarray<Scalar> &x) {
 }
 
 void invFFT(std::valarray<Scalar> &x) {
-  // conjugate the complex numbers
   x = x.apply(std::conj);
-
-  // forward fft
   FFT(x);
-
-  // conjugate the complex numbers again
   x = x.apply(std::conj);
-
-  // scale the numbers
   x /= x.size();
 }
 

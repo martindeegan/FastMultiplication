@@ -1,0 +1,21 @@
+Notes on the Project
+
+3 Main Parts:
+BigInt
+FFT
+Image Convolutions
+
+1) BigInt - I tried to create a class that would represent an arbitrarily large integer. Would support positive, zero, and negative values and could perform additions, subtractions, and multiplications. Supports naive and Karatsubas. Karatsuba's implementation is really bad and has a hugh constant coefficient. Many problems would have been solved if I used valarray
+
+2) FFT - BigInt was becoming too complex to handle so I implemented FFT separately. In place FFT.
+Some fun things: 
+a) Multiplies a 1million digit int with another 1 million digit int in only a few seconds. Naive algorithm would take over 2 hours to do this.
+b) Squared the largest prime with itself: 2^77,232,917 - 1. It has 23,249,425 digits. Used about 6GB of memory and took ~560 seconds which is 9 + 1/3 minutes.
+
+3) Image Convolutions - I use opencv to load and display images
+
+a) Rose image is 1200x800
+b) Kernels - 
+Identity = [0 0 0; 0 1 0; 0 0 0]
+Blur = [1/9 1/9 1/9; 1/9 1/9 1/9; 1/9 1/9 1/9]
+Edge = [-1 -1 -1; -1 8 -1; -1 -1 -1]
