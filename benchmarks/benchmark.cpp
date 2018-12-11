@@ -41,8 +41,8 @@ int main() {
     add_digit(s1, num_increase);
     add_digit(s2, num_increase);
     double naive = run_benchmark(s1, s2, BigInt::MultiplicationMethod::Naive);
-    double karatsubas =
-        run_benchmark(s1, s2, BigInt::MultiplicationMethod::Karatsuba);
+    double karatsubas = 0;
+    // run_benchmark(s1, s2, BigInt::MultiplicationMethod::Karatsuba);
     double fft = 0;
     std::cout << i << ", " << naive << ", " << karatsubas << ", " << fft
               << '\n';
