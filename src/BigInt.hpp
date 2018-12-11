@@ -2,6 +2,7 @@
 #define BIG_INT_HPP
 
 #include <cstdint>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -26,7 +27,10 @@ public:
   BigInt(std::string &&str);
   // BigInt(const char *str);
   BigInt(long i);
+  BigInt(const BigInt &other);
+  BigInt(const BigInt &other, size_t start_i, size_t end_i, size_t i_step);
 
+  void initialize_vector();
   void initialize_string(std::string trimmed);
 
   const std::vector<Scalar> &get_coeffs() const;
@@ -34,6 +38,7 @@ public:
   bool positive() const;
   bool zero() const;
 
+  BigInt &operator=(const BigInt &i);
   BigInt &operator=(long i);
   bool operator<(const BigInt &other) const;
   bool operator<(long i) const;
@@ -70,6 +75,48 @@ public:
 
   static void set_mult_method(MultiplicationMethod mm) { BigInt::method = mm; }
 
+  Scalar operator[](size_t index) const;
+  size_t size() const;
+
+  class Iterator {
+  public:
+    Iterator(const BigInt *p, size_t i);
+    void operator++();
+    Iterator operator+(size_t n);
+    size_t operator-(const Iterator &other);
+    bool operator==(const Iterator &other);
+    bool operator!=(const Iterator &other);
+    Scalar operator*();
+
+  private:
+    const BigInt *parent;
+    size_t index;
+  };
+
+  class ReverseIterator {
+  public:
+    ReverseIterator(const BigInt *p, size_t i);
+    void operator++();
+    ReverseIterator operator+(size_t n);
+    size_t operator-(const ReverseIterator &other);
+    bool operator==(const ReverseIterator &other);
+    bool operator!=(const ReverseIterator &other);
+    Scalar operator*();
+
+  private:
+    const BigInt *parent;
+    size_t index;
+  };
+
+  Iterator begin() const;
+  Iterator end() const;
+  ReverseIterator rbegin() const;
+  ReverseIterator rend() const;
+
+  friend BigInt::Iterator;
+
+  void set_index_bounds(size_t start_i, size_t end_i, size_t i_step);
+
 private:
   friend NaiveMultiplier;
 
@@ -85,11 +132,20 @@ private:
 private:
   Parity parity;
 
-  std::vector<Scalar> coeffs;
+  std::shared_ptr<std::vector<Scalar>> coeffs;
+
+  bool wrapper;
+  size_t start_index;
+  size_t end_index;
+  size_t index_step;
+
+  size_t power = 0;
 };
 
 class NaiveMultiplier {
 public:
+  static size_t num_multiplications;
+
   NaiveMultiplier() = default;
 
   BigInt operator()(const BigInt &i, const BigInt &j);
@@ -99,6 +155,8 @@ size_t upper_power_of_two(size_t v);
 
 class KaratsubaMultiplier {
 public:
+  static size_t num_multiplications;
+
   KaratsubaMultiplier() = default;
 
   struct SplitInt {
@@ -111,6 +169,8 @@ public:
 
 class FFTMultiplier {
 public:
+  static size_t num_multiplications;
+
   FFTMultiplier() = default;
 
   struct SplitInt {
@@ -119,15 +179,15 @@ public:
   };
   SplitInt split(const BigInt &i);
 
-  size_t get_pow_two(const BigInt &i, const BigInt &j);
+  BigInt FFT(BigInt &i);
+  BigInt invFFT(BigInt &y);
 
-  std::vector<Scalar> FFT(const BigInt &i, size_t n);
+  void FFTUtil(BigInt &v, BigInt &y, size_t n, Scalar w);
 
-  BigInt invFFT(std::vector<Scalar> &y);
+  BigInt multiply(const BigInt &i, const BigInt &j);
 
-  void FFTUtil(std::vector<Scalar> &v, std::vector<Scalar> &y, Scalar w);
-
-  BigInt operator()(const BigInt &i, const BigInt &j);
+private:
+  size_t m;
 };
 
 std::string trim(const std::string &str);

@@ -390,3 +390,17 @@ BOOST_AUTO_TEST_CASE(Pow2Test1) {
   BOOST_CHECK_EQUAL(upper_power_of_two(x2), std::pow<size_t>(2, 30));
   BOOST_CHECK_EQUAL(upper_power_of_two(x3), std::pow<size_t>(2, 31));
 }
+
+BOOST_AUTO_TEST_CASE(IteratorTest1) {
+  BigInt i = 123123;
+  BigInt::Iterator it = i.begin();
+  BOOST_CHECK_EQUAL(*it, 3);
+  ++it;
+  BOOST_CHECK_EQUAL(*it, 2);
+  ++it;
+  BOOST_CHECK_EQUAL(*it, 1);
+  it = it + 3;
+  BOOST_CHECK_EQUAL(*it, 1);
+  ++it;
+  BOOST_CHECK(it == i.end());
+}

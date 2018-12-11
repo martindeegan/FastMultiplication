@@ -4,25 +4,23 @@
 
 #include "BigInt.hpp"
 
+size_t KaratsubaMultiplier::num_multiplications = 0;
+
 KaratsubaMultiplier::SplitInt KaratsubaMultiplier::split(const BigInt &i) {
-  size_t n = i.coeffs.size();
+  size_t n = i.size();
   size_t mid = n / 2;
 
-  BigInt lo;
-  lo.parity = i.parity;
-  lo.coeffs = std::vector<Scalar>(i.coeffs.begin(), i.coeffs.begin() + mid);
-  BigInt hi;
-  hi.parity = i.parity;
-  hi.coeffs = std::vector<Scalar>(i.coeffs.begin() + mid, i.coeffs.end());
+  BigInt lo(i, 0, mid, 1);
+  BigInt hi(i, mid, n, 1);
 
   // Set parity to zero if necessary
-  auto lo_it = std::find_if_not(lo.coeffs.begin(), lo.coeffs.end(),
+  auto lo_it = std::find_if_not(lo.coeffs->begin(), lo.coeffs->end(),
                                 [](Scalar x) { return x == 0; });
-  auto hi_it = std::find_if_not(hi.coeffs.begin(), hi.coeffs.end(),
+  auto hi_it = std::find_if_not(hi.coeffs->begin(), hi.coeffs->end(),
                                 [](Scalar x) { return x == 0; });
-  if (lo_it == lo.coeffs.end())
+  if (lo_it == lo.coeffs->end())
     lo.parity = BigInt::Parity::Zero;
-  if (hi_it == hi.coeffs.end())
+  if (hi_it == hi.coeffs->end())
     hi.parity = BigInt::Parity::Zero;
 
   SplitInt pair;
@@ -38,22 +36,22 @@ BigInt KaratsubaMultiplier::multiply(const BigInt &i, const BigInt &j) {
     return zero_int;
   }
 
-  size_t n = std::max(i.coeffs.size(), j.coeffs.size());
+  size_t n = std::max(i.size(), j.size());
 
   // If not a power of 2
-  if (n & (n - 1) != 0 || i.coeffs.size() != j.coeffs.size()) {
+  if (n & (n - 1) != 0 || i.size() != j.size()) {
     BigInt i_pow2 = i;
     BigInt j_pow2 = j;
 
     size_t n_upper = upper_power_of_two(n);
-    i_pow2.coeffs.resize(n_upper, 0);
-    j_pow2.coeffs.resize(n_upper, 0);
+    i_pow2.coeffs->resize(n_upper, 0);
+    j_pow2.coeffs->resize(n_upper, 0);
 
     return this->multiply(i_pow2, j_pow2);
   }
 
   BigInt product;
-  product.coeffs.clear();
+  product.coeffs->clear();
 
   // Recusion base case. If the integers have only base_size digits, use naive
   // multiplication
@@ -64,6 +62,7 @@ BigInt KaratsubaMultiplier::multiply(const BigInt &i, const BigInt &j) {
     i_copy.method = BigInt::MultiplicationMethod::Naive;
     j_copy.method = BigInt::MultiplicationMethod::Naive;
     BigInt product = i * j;
+    KaratsubaMultiplier::num_multiplications++;
     product.method = BigInt::MultiplicationMethod::Karatsuba;
     return product;
   }
@@ -76,8 +75,8 @@ BigInt KaratsubaMultiplier::multiply(const BigInt &i, const BigInt &j) {
       this->multiply((split_i.hi + split_i.lo), (split_j.hi + split_j.lo)) -
       z_2 - z_0;
   // Multiply by powers of 10;
-  z_1.coeffs.insert(z_1.coeffs.begin(), n / 2, 0);
-  z_2.coeffs.insert(z_2.coeffs.begin(), n, 0);
+  z_1.coeffs->insert(z_1.coeffs->begin(), n / 2, 0);
+  z_2.coeffs->insert(z_2.coeffs->begin(), n, 0);
 
   product = z_0 + z_1 + z_2;
 

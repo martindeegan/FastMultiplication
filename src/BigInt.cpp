@@ -36,8 +36,13 @@ size_t upper_power_of_two(size_t v) {
 // =============================================================================
 // Constructors
 // =============================================================================
+void BigInt::initialize_vector() {
+  std::vector<Scalar> emtpy_vec;
+  coeffs = std::make_shared<std::vector<Scalar>>(emtpy_vec);
+}
 
 void BigInt::initialize_string(std::string trimmed) {
+  initialize_vector();
   size_t first_nonzero = trimmed.find_first_not_of('0', 0);
 
   // Check for negative;
@@ -52,31 +57,49 @@ void BigInt::initialize_string(std::string trimmed) {
     return;
   }
 
-  coeffs.reserve(trimmed.size() - first_nonzero);
+  coeffs->reserve(trimmed.size() - first_nonzero);
   for (auto rit = trimmed.rbegin(); rit != trimmed.rend() - first_nonzero;
        rit++) {
     Scalar digit = (*rit) - '0';
-    coeffs.push_back(digit);
+    coeffs->push_back(digit);
   }
+  end_index = coeffs->size();
 }
 
-BigInt::BigInt() { set_zero(); }
+BigInt::BigInt() : wrapper(false), start_index(0), end_index(0), index_step(1) {
+  initialize_vector();
+  set_zero();
+}
 
-BigInt::BigInt(const std::string &str) : parity(Parity::Positive) {
+BigInt::BigInt(const std::string &str)
+    : parity(Parity::Positive), wrapper(false), start_index(0), end_index(0),
+      index_step(1) {
   initialize_string(trim(str));
 }
 
-BigInt::BigInt(std::string &&str) : parity(Parity::Positive) {
+BigInt::BigInt(std::string &&str)
+    : parity(Parity::Positive), wrapper(false), start_index(0), end_index(0),
+      index_step(1) {
   initialize_string(trim(str));
 }
 
-BigInt::BigInt(long i) { *this = BigInt(std::to_string(i)); }
+BigInt::BigInt(long i) : BigInt(std::to_string(i)) {}
+
+BigInt::BigInt(const BigInt &other)
+    : wrapper(other.wrapper), start_index(other.start_index),
+      end_index(other.end_index), index_step(other.index_step) {
+  *coeffs = *(other.coeffs);
+}
+
+BigInt::BigInt(const BigInt &other, size_t start_i, size_t end_i, size_t i_step)
+    : coeffs(other.coeffs), wrapper(true), start_index(start_i),
+      end_index(end_i), index_step(i_step) {}
 
 // =============================================================================
 // Getters
 // =============================================================================
 
-const std::vector<Scalar> &BigInt::get_coeffs() const { return coeffs; }
+const std::vector<Scalar> &BigInt::get_coeffs() const { return *coeffs; }
 
 bool BigInt::negative() const { return parity == Parity::Negative; }
 bool BigInt::positive() const { return parity == Parity::Positive; }
@@ -85,6 +108,15 @@ bool BigInt::zero() const { return parity == Parity::Zero; }
 // =============================================================================
 // Comparators
 // =============================================================================
+
+BigInt &BigInt::operator=(const BigInt &i) {
+
+  *this = i;
+  std::vector<Scalar> *v =
+      new std::vector<Scalar>(i.coeffs->begin(), i.coeffs->end());
+  coeffs = std::shared_ptr<std::vector<Scalar>>(v);
+  return *this;
+}
 
 BigInt &BigInt::operator=(long i) {
   *this = BigInt(i);
@@ -103,13 +135,13 @@ bool BigInt::operator==(const BigInt &other) const {
   }
 
   // Quick order of magnitude check
-  if (other.coeffs.size() != coeffs.size()) {
+  if (other.size() != size()) {
     return false;
   }
 
   // Check each coefficient
-  for (size_t i = 0; i < coeffs.size(); i++) {
-    if (other.coeffs[i] != coeffs[i])
+  for (size_t i = 0; i < size(); i++) {
+    if (other[i] != (*this)[i])
       return false;
   }
 
@@ -136,16 +168,17 @@ bool BigInt::operator<(const BigInt &other) const {
     return false;
   else if (positive()) {
     // Positive case
-    if (other.coeffs.size() > coeffs.size()) {
+    if (other.size() > size()) {
       // Other contains more digits, therefore more positive and greater
       return true;
-    } else if (other.coeffs.size() < coeffs.size()) {
+    } else if (other.size() < size()) {
       // this contains more digits, therefore, more positive and greater
       return false;
     } else {
-      for (auto rit_this = this->coeffs.rbegin(),
-                rit_other = other.coeffs.rbegin();
-           rit_this != this->coeffs.rend() && rit_other != other.coeffs.rend();
+      for (auto rit_this = this->coeffs->rbegin(),
+                rit_other = other.coeffs->rbegin();
+           rit_this != this->coeffs->rend() &&
+           rit_other != other.coeffs->rend();
            rit_this++, rit_other++) {
         if (*rit_this < *rit_other) {
           // this is less
@@ -160,16 +193,17 @@ bool BigInt::operator<(const BigInt &other) const {
     }
   } else if (negative()) {
     // Negative case
-    if (other.coeffs.size() > coeffs.size()) {
+    if (other.size() > size()) {
       // Other contains more digits therefore more negative and lesser
       return false;
-    } else if (other.coeffs.size() < coeffs.size()) {
+    } else if (other.size() < size()) {
       // this contains more digits, therefore more negative and lesser
       return true;
     } else {
-      for (auto rit_this = this->coeffs.rbegin(),
-                rit_other = other.coeffs.rbegin();
-           rit_this != this->coeffs.rend() && rit_other != other.coeffs.rend();
+      for (auto rit_this = this->coeffs->rbegin(),
+                rit_other = other.coeffs->rbegin();
+           rit_this != this->coeffs->rend() &&
+           rit_other != other.coeffs->rend();
            rit_this++, rit_other++) {
         if (*rit_this < *rit_other) {
           // other is less
@@ -220,16 +254,16 @@ bool BigInt::operator>=(std::string &&str) const {
 // =============================================================================
 
 void BigInt::trim_coeff() {
-  auto it = std::find_if(coeffs.rbegin(), coeffs.rend(),
-                         [](Scalar i) { return i != 0; });
+  for (auto it = rbegin(); it != rend(); ++it) {
+    if (*it != 0) {
+      size_t diff = rend() - it;
+      coeffs->resize(diff);
 
-  if (it == coeffs.rend()) {
-    set_zero();
-    return;
+      return;
+    }
   }
 
-  size_t diff = coeffs.rend() - it;
-  coeffs.resize(diff);
+  set_zero();
 }
 
 BigInt BigInt::operator+(const BigInt &other) const {
@@ -266,38 +300,37 @@ BigInt BigInt::operator+(const BigInt &other) const {
 
   BigInt sum;
   sum.parity = this->parity;
-  sum.coeffs.clear();
+  sum.coeffs->clear();
 
-  size_t size = coeffs.size() + 1;
-  sum.coeffs.reserve(size);
+  size_t n = size() + 1;
+  sum.coeffs->reserve(n);
 
-  size_t i = 0;
   Scalar carry = 0;
-
-  for (; i < other.coeffs.size(); i++) {
-    Scalar digit = carry + coeffs[i] + (other.coeffs[i] * pm);
+  Iterator it1 = begin(), it2 = other.begin();
+  for (; it2 != other.end(); ++it1, ++it2) {
+    Scalar digit = carry + *it1 + (*it2 * pm);
     Scalar remainder = digit % Base;
     carry = digit / Base;
     if (remainder < 0) {
       remainder += Base;
       carry--;
     }
-    sum.coeffs.push_back(remainder);
+    sum.coeffs->push_back(remainder);
   }
 
-  for (; i < coeffs.size(); i++) {
-    Scalar digit = coeffs[i] + carry;
-    sum.coeffs.push_back(digit % Base);
+  for (; it1 != end(); ++it1) {
+    Scalar digit = *it1 + carry;
+    sum.coeffs->push_back(digit % Base);
     carry = digit / Base;
   }
 
-  if (carry == 0) {
-    sum.coeffs.resize(coeffs.size());
-  } else {
-    sum.coeffs.push_back(carry);
+  if (carry != 0) {
+    sum.coeffs->push_back(carry);
   }
 
-  sum.trim_coeff();
+  sum.end_index = n;
+
+  auto v = sum.get_coeffs();
 
   return sum;
 }
@@ -338,15 +371,18 @@ BigInt BigInt::operator*(const BigInt &other) const {
   switch (method) {
   case MultiplicationMethod::Naive:
     NaiveMultiplier naive_mult;
+    NaiveMultiplier::num_multiplications = 0;
     product = naive_mult(*this, other);
     break;
   case MultiplicationMethod::Karatsuba:
     KaratsubaMultiplier kara_mult;
+    KaratsubaMultiplier::num_multiplications = 0;
     product = kara_mult.multiply(*this, other);
     break;
   case MultiplicationMethod::FFT:
     FFTMultiplier fft_mult;
-    product = fft_mult(*this, other);
+    FFTMultiplier::num_multiplications = 0;
+    product = fft_mult.multiply(*this, other);
     break;
   }
 
@@ -364,13 +400,102 @@ BigInt &BigInt::operator*=(const BigInt &other) {
 }
 
 // =============================================================================
+// Indexing Operators
+// =============================================================================
+
+BigInt::Iterator::Iterator(const BigInt *p, size_t i) : parent(p), index(i) {}
+
+void BigInt::Iterator::operator++() { (*this) = operator+(1); }
+
+BigInt::Iterator BigInt::Iterator::operator+(size_t n) {
+  Iterator new_it = *this;
+  if (index + n < parent->end_index)
+    new_it.index += n;
+  else
+    new_it.index = -1;
+  return new_it;
+}
+
+size_t BigInt::Iterator::operator-(const Iterator &other) {
+  return index - other.index;
+}
+
+bool BigInt::Iterator::operator==(const Iterator &other) {
+  return index == other.index;
+}
+
+bool BigInt::Iterator::operator!=(const Iterator &other) {
+  return !(index == other.index);
+}
+
+Scalar BigInt::Iterator::operator*() { return (*parent)[index]; }
+
+BigInt::ReverseIterator::ReverseIterator(const BigInt *p, size_t i)
+    : parent(p), index(i) {}
+
+void BigInt::ReverseIterator::operator++() { (*this) = operator+(1); }
+
+BigInt::ReverseIterator BigInt::ReverseIterator::operator+(size_t n) {
+  ReverseIterator new_it = *this;
+  if (index - n >= parent->start_index)
+    new_it.index -= n;
+  else
+    new_it.index = -1;
+  return new_it;
+}
+
+size_t BigInt::ReverseIterator::operator-(const ReverseIterator &other) {
+  return index - other.index;
+}
+
+bool BigInt::ReverseIterator::operator==(const ReverseIterator &other) {
+  return index == other.index;
+}
+bool BigInt::ReverseIterator::operator!=(const ReverseIterator &other) {
+  return !(index == other.index);
+}
+
+Scalar BigInt::ReverseIterator::operator*() { return (*parent)[index]; }
+
+Scalar BigInt::operator[](size_t index) const {
+  return (*coeffs)[index * index_step];
+}
+size_t BigInt::size() const { return end_index; }
+
+BigInt::Iterator BigInt::begin() const {
+  if (end_index == start_index)
+    return Iterator(this, -1);
+  else
+    return Iterator(this, start_index);
+}
+
+BigInt::Iterator BigInt::end() const {
+  Iterator it(this, -1);
+  return it;
+}
+
+BigInt::ReverseIterator BigInt::rbegin() const {
+  if (end_index == start_index)
+    return ReverseIterator(this, -1);
+  else
+    return ReverseIterator(this, end_index - 1);
+}
+
+BigInt::ReverseIterator BigInt::rend() const {
+  ReverseIterator it(this, -1);
+  return it;
+}
+
+// =============================================================================
 // Setters
 // =============================================================================
 
-void BigInt::set_zero() {
-  parity = Parity::Zero;
-  coeffs.resize(1);
-  coeffs[0] = 0;
+void BigInt::set_zero() { parity = Parity::Zero; }
+
+void BigInt::set_index_bounds(size_t start_i, size_t end_i, size_t i_step) {
+  start_index = start_i;
+  end_index = end_i;
+  index_step = i_step;
 }
 
 // =============================================================================

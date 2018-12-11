@@ -5,19 +5,22 @@
 
 #include "BigInt.hpp"
 
-double run_benchmark(const std::string &str1, const std::string &str2,
+size_t run_benchmark(const std::string &str1, const std::string &str2,
                      BigInt::MultiplicationMethod method) {
   BigInt::set_mult_method(method);
   BigInt i1(str1);
   BigInt i2(str2);
   constexpr size_t iterations = 5;
-  auto start = std::chrono::system_clock::now();
-  for (size_t i = 0; i < iterations; i++) {
-    BigInt j = i1 * i2;
+  BigInt j = i1 * i2;
+  switch (method) {
+  case BigInt::MultiplicationMethod::Naive:
+    return NaiveMultiplier::num_multiplications;
+  case BigInt::MultiplicationMethod::Karatsuba:
+    return KaratsubaMultiplier::num_multiplications;
+  case BigInt::MultiplicationMethod::FFT:
+    return FFTMultiplier::num_multiplications;
   }
-  auto end = std::chrono::system_clock::now();
-  std::chrono::duration<double> elapsed_seconds = end - start;
-  return elapsed_seconds.count() / static_cast<double>(iterations);
+  return 0;
 }
 
 void add_digit(std::string &str, size_t num_increase) {
@@ -40,10 +43,10 @@ int main() {
     std::cerr << i << std::endl;
     add_digit(s1, num_increase);
     add_digit(s2, num_increase);
-    double naive = run_benchmark(s1, s2, BigInt::MultiplicationMethod::Naive);
-    double karatsubas =
+    size_t naive = run_benchmark(s1, s2, BigInt::MultiplicationMethod::Naive);
+    size_t karatsubas =
         run_benchmark(s1, s2, BigInt::MultiplicationMethod::Karatsuba);
-    double fft = 0;
+    size_t fft = 0;
     std::cout << i << ", " << naive << ", " << karatsubas << ", " << fft
               << '\n';
   }
