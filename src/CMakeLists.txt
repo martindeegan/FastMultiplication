@@ -8,3 +8,6 @@ add_library(integer SHARED
 
 add_executable(main main.cpp)
 target_link_libraries(main integer)
+
+add_executable(fft fft.cpp)
+target_link_libraries(fft integer)
